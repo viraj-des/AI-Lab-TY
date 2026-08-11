@@ -1,106 +1,121 @@
+from collections import deque
+
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+
+def createTree(values, index=0):
+
+    if index >= len(values):
+        return None
+
+    node = Node(values[index])
+
+    node.left = createTree(values, 2 * index + 1)
+    node.right = createTree(values, 2 * index + 2)
+
+    return node
+
+
+def findNode(node, value):
+
+    if node is None:
+        return None
+
+    if node.value == value:
+        return node
+
+    result = findNode(node.left, value)
+
+    if result:
+        return result
+
+    return findNode(node.right, value)
+
+
+def bfs(root, goal):
+
+    queue = deque([(root, [root.value])])
+
+    while queue:
+
+        node, path = queue.popleft()
+
+        if node.value == goal:
+            return path, True
+
+        if node.left:
+            queue.append((node.left, path + [node.left.value]))
+
+        if node.right:
+            queue.append((node.right, path + [node.right.value]))
+
+    return [], False
+
+
+def dfs(node, goal, path):
+
+    if node is None:
+        return [], False
+
+    path = path + [node.value]
+
+    if node.value == goal:
+        return path, True
+
+    resultPath, found = dfs(node.left, goal, path)
+
+    if found:
+        return resultPath, True
+
+    resultPath, found = dfs(node.right, goal, path)
+
+    if found:
+        return resultPath, True
+
+    return [], False
+
+
 depth = int(input("Enter the depth of the tree: "))
 
 totalElements = (2 ** (depth + 1)) - 1
 
 print("Total elements:", totalElements)
 
-tree = []
+values = []
 
 for i in range(totalElements):
     value = input(f"Enter value for node {i + 1}: ")
-    tree.append(value)
+    values.append(value)
 
-print("\nTree:", tree)
+root = createTree(values)
 
 start = input("Enter start node: ")
 goal = input("Enter goal node: ")
 
+startNode = findNode(root, start)
 
-def bfs(tree, start, goal):
-
-    startIndex = -1
-
-    for i in range(len(tree)):
-        if tree[i] == start:
-            startIndex = i
-            break
-
-    if startIndex == -1:
-        return [], False
-
-    queue = [(startIndex, [start])]
-
-    while len(queue) > 0:
-
-        currentIndex, path = queue.pop(0)
-
-        current = tree[currentIndex]
-
-        if current == goal:
-            return path, True
-
-        left = 2 * currentIndex + 1
-        right = 2 * currentIndex + 2
-
-        if left < len(tree):
-            queue.append((left, path + [tree[left]]))
-
-        if right < len(tree):
-            queue.append((right, path + [tree[right]]))
-
-    return [], False
-
-
-def dfs(tree, currentIndex, goal, path):
-
-    if currentIndex >= len(tree):
-        return [], False
-
-    current = tree[currentIndex]
-
-    path = path + [current]
-
-    if current == goal:
-        return path, True
-
-    left = 2 * currentIndex + 1
-    resultPath, found = dfs(tree, left, goal, path)
-
-    if found:
-        return resultPath, True
-
-    right = 2 * currentIndex + 2
-    resultPath, found = dfs(tree, right, goal, path)
-
-    if found:
-        return resultPath, True
-
-    return [], False
-
-bfsPath, bfsFound = bfs(tree, start, goal)
-
-print("\n--- BFS ---")
-
-if bfsFound:
-    print("Goal found")
-    print("Path:", " -> ".join(bfsPath))
-else:
-    print("Goal not found")
-
-
-startIndex = -1
-
-for i in range(len(tree)):
-    if tree[i] == start:
-        startIndex = i
-        break
-
-print("\n--- DFS ---")
-
-if startIndex == -1:
+if startNode is None:
     print("Start node not found")
+
 else:
-    dfsPath, dfsFound = dfs(tree, startIndex, goal, [])
+
+    print("\n--- BFS ---")
+
+    bfsPath, bfsFound = bfs(startNode, goal)
+
+    if bfsFound:
+        print("Goal found")
+        print("Path:", " -> ".join(bfsPath))
+    else:
+        print("Goal not found")
+
+    print("\n--- DFS ---")
+
+    dfsPath, dfsFound = dfs(startNode, goal, [])
 
     if dfsFound:
         print("Goal found")
