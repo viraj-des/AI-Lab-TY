@@ -52,7 +52,7 @@ heuristics = {
     'g': 0
 }
 
-start = 'f'
+start = 'b'
 goal = 'g'
 
 path, total_cost = a_star_graph(graph, heuristics, start, goal)
